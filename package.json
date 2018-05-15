@@ -1,6 +1,6 @@
 {
     "name": "wipac-fc-node",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "Node.js Client for WIPAC File Catalog",
     "homepage": "https://github.com/WIPACrepo/wipac-fc-node",
     "bugs": "https://github.com/WIPACrepo/wipac-fc-node/issues",
@@ -17,7 +17,8 @@
         "url": "https://github.com/WIPACrepo/wipac-fc-node.git"
     },
     "dependencies": {
-        "node-rest-client": "3.1.0"
+        "node-rest-client": "3.1.0",
+        "url-join": "4.0.0"
     },
     "devDependencies": {
         "coffeescript": "2.3.0",

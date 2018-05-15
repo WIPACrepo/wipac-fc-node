@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Security
 - in case of vulnerabilities
 
+## [0.0.2] - 2018-05-15
+### Added
+- Original Python client client.py in doc/ directory
+- client.coffee to implement some of the original Python API
+
 ## 0.0.1 - 2018-05-14
 ### Added
 - Project specific directories to .gitignore
@@ -25,4 +30,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Project dependencies in package.json
 - Description of project in README.md
 
-[Unreleased]: https://github.com/WIPACrepo/wipac-fc-node/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/WIPACrepo/wipac-fc-node/compare/v0.0.2...HEAD
+[0.0.2]: https://github.com/WIPACrepo/wipac-fc-node/compare/v0.0.1...v0.0.2
