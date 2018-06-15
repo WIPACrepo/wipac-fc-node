@@ -13,6 +13,9 @@ urljoin = require "url-join"
 #     """
 #
 #     pass
+class exports.ClientError extends Error
+  constructor: (message) ->
+    super message
 
 # class Error(Exception):
 #     """
@@ -316,8 +319,9 @@ class exports.WFCClient
   #     Updates/patches a metadata of a file.
   #     """
   #     return self._update_or_replace(uid=uid, metadata=metadata, method=self._r.patch)
-  update: (uid, metadata = {}) ->
-    return Promise.reject new Error "update Not Supported"
+  update: (uid, metadata) ->
+    #return Promise.reject new Error "update Not Supported"
+    return @_update_or_replace uid, metadata, @client.patch
 
   # def _update_or_replace(self, uid, metadata={}, method=None):
   #     """
@@ -339,14 +343,43 @@ class exports.WFCClient
   #         return r.json()
   #     else:
   #         raise error_factory(r.status_code, r.text)
+  _update_or_replace: (uid, metadata, method) ->
+    {ClientError} = exports
+    if not uid?
+      return Promise.reject new ClientError "No UID was provided to be updated or replaced"
+    if not metadata?
+      return Promise.reject new ClientError "No metadata has been passed to update file metadata"
+    if not method?
+      return Promise.reject new ClientError "No method has been provided to update or replace"
+
+    filesUrl = urljoin @url, "files", uid
+    data = JSON.stringify metadata
+
+    # var args = {
+    #     data: { test: "hello" }, // data passed to REST method (only useful in POST, PUT or PATCH methods)
+    #     path: { "id": 120 }, // path substitution var
+    #     parameters: { arg1: "hello", arg2: "world" }, // this is serialized as URL parameters
+    #     headers: { "test-header": "client-api" } // request headers
+    # };
+    args =
+      data: data
+      headers:
+        "Content-Type": "application/json"
+
+    return new Promise (resolve, reject) ->
+      method filesUrl, args, (data, response) ->
+        return resolve data
+      .on "error", (err) ->
+        return reject err
 
   # def replace(self, uid, metadata={}):
   #     """
   #     Replaces the metadata of a file except for `mongo_id` and `uid`.
   #     """
   #     return self._update_or_replace(uid=uid, metadata=metadata, method=self._r.put)
-  replace: (uid, metadata = {}) ->
-    return Promise.reject new Error "replace Not Supported"
+  replace: (uid, metadata) ->
+    #return Promise.reject new Error "replace Not Supported"
+    return @_update_or_replace uid, metadata, @client.put
 
   # def delete(self, uid):
   #     """
