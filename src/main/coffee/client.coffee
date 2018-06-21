@@ -294,7 +294,16 @@ class exports.WFCClient
   #     else:
   #         raise Error('The server responded without an etag', -1)
   get_etag: (uid) ->
-    return Promise.reject new Error "get_etag Not Supported"
+    filesUrl = urljoin @url, "files", uid
+
+    restClient = @client
+    return new Promise (resolve, reject) ->
+      restClient.get filesUrl, (data, response) ->
+        if response.headers?.etag?
+          return resolve response.headers.etag
+        return reject new Error "The server responded without an etag"
+      .on "error", (err) ->
+        return reject err
 
   # def create(self, metadata):
   #     """
@@ -373,6 +382,7 @@ class exports.WFCClient
 
     filesUrl = urljoin @url, "files", uid
     data = JSON.stringify metadata
+    etag = await @get_etag uid
 
     # var args = {
     #     data: { test: "hello" }, // data passed to REST method (only useful in POST, PUT or PATCH methods)
@@ -384,10 +394,15 @@ class exports.WFCClient
       data: data
       headers:
         "Content-Type": "application/json"
+        "If-None-Match": etag
 
     return new Promise (resolve, reject) ->
       method filesUrl, args, (data, response) ->
-        return resolve data
+        try
+          obj = JSON.parse data
+        catch err
+          return reject err
+        return resolve obj
       .on "error", (err) ->
         return reject err
 

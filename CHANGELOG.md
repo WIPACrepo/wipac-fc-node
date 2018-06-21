@@ -18,6 +18,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Security
 - in case of vulnerabilities
 
+## [0.0.5] - 2018-06-21
+### Added
+- Method to obtain ETag for a file
+- Integration tests for update and replace methods
+### Changed
+- Update and replace client methods return objects instead of naked JSON
+- Existing client tests for object returns
+### Fixed
+- istanbul dependency changed to bleeding edge to fix coverage report
+
 ## [0.0.4] - 2018-06-20
 ### Added
 - Methods to create and query Collections and Snapshots

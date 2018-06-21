@@ -126,6 +126,67 @@ describe "integration", ->
       for file in result.files
         expecting.includes(file.uuid).should.equal true
 
+    it "should be able to create and update a document", ->
+      # create the document
+      DOC = randomDocument()
+      result = await client.create DOC
+      result.should.have.properties [ "_links", "file" ]
+      result.file.should.equal "/api/files/#{DOC.uuid}"
+      # retrieve the document
+      CHECK_DOC = defaults {}, DOC,
+        _links:
+          parent:
+            href: "/api/files"
+          self:
+            href: "/api/files/#{DOC.uuid}"
+      getDoc = await client.get DOC.uuid
+      CHECK_DOC.meta_modify_date = getDoc.meta_modify_date
+      getDoc.should.eql CHECK_DOC
+      # update the document
+      tag = randomUuid()
+      CHECK_DOC2 = defaults {}, CHECK_DOC,
+        special_tag: tag
+      result2 = await client.update DOC.uuid,
+        special_tag: tag
+      CHECK_DOC2.meta_modify_date = result2.meta_modify_date
+      result2.should.eql CHECK_DOC2
+      # retrieve the updated document
+      getDoc2 = await client.get DOC.uuid
+      getDoc2.should.eql CHECK_DOC2
+
+    it "should be able to create and replace a document", ->
+      # create the document
+      DOC = randomDocument()
+      result = await client.create DOC
+      result.should.have.properties [ "_links", "file" ]
+      result.file.should.equal "/api/files/#{DOC.uuid}"
+      # retrieve the document
+      CHECK_DOC = defaults {}, DOC,
+        _links:
+          parent:
+            href: "/api/files"
+          self:
+            href: "/api/files/#{DOC.uuid}"
+      getDoc = await client.get DOC.uuid
+      CHECK_DOC.meta_modify_date = getDoc.meta_modify_date
+      getDoc.should.eql CHECK_DOC
+      # replace the document
+      DOC2 = randomDocument()
+      DOC2.uuid = DOC.uuid
+      DOC2.logical_name = DOC.logical_name
+      CHECK_DOC2 = defaults {}, DOC2,
+        _links:
+          parent:
+            href: "/api/files"
+          self:
+            href: "/api/files/#{DOC2.uuid}"
+      result2 = await client.replace DOC.uuid, DOC2
+      CHECK_DOC2.meta_modify_date = result2.meta_modify_date
+      result2.should.eql CHECK_DOC2
+      # retrieve the updated document
+      getDoc2 = await client.get DOC.uuid
+      getDoc2.should.eql CHECK_DOC2
+
   describe "Collections", ->
     it "should be able to retrieve a list of collections", ->
       result = await client.get_collections()

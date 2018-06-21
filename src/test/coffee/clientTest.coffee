@@ -179,9 +179,17 @@ describe "client", ->
         should(client.get_list(QUERY)).be.rejectedWith new Error "nope"
 
     describe "get_etag", ->
-      it "does not yet support", ->
+      it "should provide an ETag for a document", ->
+        UUID = "df25e09b-7361-44d4-a5ae-8d12cf649064"
         client = new mut.WFCClient "http://127.0.0.1"
-        client.get_etag("df25e09b-7361-44d4-a5ae-8d12cf649064").should.be.rejected()
+        client.client =
+          get: (url, cb) ->
+            url.should.equal "http://127.0.0.1/api/files/#{UUID}"
+            cb "85dd657335fe98925625f1261ad348eccdfd1db9",
+              headers:
+                etag: "85dd657335fe98925625f1261ad348eccdfd1db9"
+            return client.client
+        client.get_etag(UUID).should.be.fulfilledWith("85dd657335fe98925625f1261ad348eccdfd1db9")
 
     describe "create", ->
       it "should allow a document to be created", ->
@@ -268,16 +276,24 @@ describe "client", ->
           "dave": 4
           "eve": 5
           "frank": 6
+        DOC_JSON = JSON.stringify DOC_META
         client = new mut.WFCClient "http://127.0.0.1"
         client.client.should.be.ok()
         client.client =
+          get: (url, cb) ->
+            url.should.equal "http://127.0.0.1/api/files/#{UUID}"
+            cb "85dd657335fe98925625f1261ad348eccdfd1db9",
+              headers:
+                etag: "85dd657335fe98925625f1261ad348eccdfd1db9"
+            return client.client
           patch: (url, args, cb) ->
             url.should.equal "http://127.0.0.1/api/files/#{UUID}"
             args.should.eql
               data: '{"dave":4,"eve":5,"frank":6}'
               headers:
                 "Content-Type": 'application/json'
-            return cb DOC_META, "raw response here"
+                "If-None-Match": "85dd657335fe98925625f1261ad348eccdfd1db9"
+            return cb DOC_JSON, "raw response here"
           on: (name, cb) ->
         should(client.update("df25e09b-7361-44d4-a5ae-8d12cf649064", DOC_PATCH)).be.fulfilledWith DOC_META
 
@@ -298,12 +314,19 @@ describe "client", ->
         client = new mut.WFCClient "http://127.0.0.1"
         client.client.should.be.ok()
         client.client =
+          get: (url, cb) ->
+            url.should.equal "http://127.0.0.1/api/files/#{UUID}"
+            cb "85dd657335fe98925625f1261ad348eccdfd1db9",
+              headers:
+                etag: "85dd657335fe98925625f1261ad348eccdfd1db9"
+            return client.client
           patch: (url, args, cb) ->
             url.should.equal "http://127.0.0.1/api/files/#{UUID}"
             args.should.eql
               data: '{"dave":4,"eve":5,"frank":6}'
               headers:
                 "Content-Type": 'application/json'
+                "If-None-Match": "85dd657335fe98925625f1261ad348eccdfd1db9"
             return client.client
           on: (name, cb) ->
             name.should.equal "error"
@@ -322,16 +345,24 @@ describe "client", ->
           "dave": 4
           "eve": 5
           "frank": 6
+        JSON_REPLACE = JSON.stringify DOC_REPLACE
         client = new mut.WFCClient "http://127.0.0.1"
         client.client.should.be.ok()
         client.client =
+          get: (url, cb) ->
+            url.should.equal "http://127.0.0.1/api/files/#{UUID}"
+            cb "85dd657335fe98925625f1261ad348eccdfd1db9",
+              headers:
+                etag: "85dd657335fe98925625f1261ad348eccdfd1db9"
+            return client.client
           put: (url, args, cb) ->
             url.should.equal "http://127.0.0.1/api/files/#{UUID}"
             args.should.eql
               data: '{"dave":4,"eve":5,"frank":6}'
               headers:
                 "Content-Type": 'application/json'
-            return cb DOC_REPLACE, "raw response here"
+                "If-None-Match": "85dd657335fe98925625f1261ad348eccdfd1db9"
+            return cb JSON_REPLACE, "raw response here"
           on: (name, cb) ->
         should(client.replace("df25e09b-7361-44d4-a5ae-8d12cf649064", DOC_REPLACE)).be.fulfilledWith DOC_REPLACE
 
