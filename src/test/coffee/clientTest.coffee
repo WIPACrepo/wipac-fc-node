@@ -1,4 +1,5 @@
 # clientTest.coffee
+#-----------------------------------------------------------------------
 
 should = require "should"
 
@@ -72,12 +73,13 @@ describe "client", ->
           "alice": 1
           "bob": 2
           "carol": 3
+        DOC_JSON = JSON.stringify DOC_META
         client = new mut.WFCClient "http://127.0.0.1"
         client.client.should.be.ok()
         client.client =
           get: (url, cb) ->
             url.should.equal "http://127.0.0.1/api/files/#{UUID}"
-            return cb DOC_META, "raw response here"
+            return cb DOC_JSON, "raw response here"
           on: (name, cb) ->
         should(client.get("df25e09b-7361-44d4-a5ae-8d12cf649064")).be.fulfilledWith DOC_META
 
@@ -112,6 +114,7 @@ describe "client", ->
               uuid: "5fb50d75-1c90-4f8a-9d9b-ac4a6ce80744"
             }
           ]
+        FILES_JSON = JSON.stringify FILES_META
         QUERY =
           query:
             logical_name: "/data/exp/IceCube/2012/filtered/PFFilt/1109/PFFilt_PhysicsTrig_PhysicsFiltering_Run00120918_Subrun00000000_00000089.tar.bz2"
@@ -123,7 +126,7 @@ describe "client", ->
             args.should.eql
               parameters:
                 query: '{"logical_name":"/data/exp/IceCube/2012/filtered/PFFilt/1109/PFFilt_PhysicsTrig_PhysicsFiltering_Run00120918_Subrun00000000_00000089.tar.bz2"}'
-            return cb FILES_META, "raw response here"
+            return cb FILES_JSON, "raw response here"
           on: (name, cb) ->
         should(client.get_list(QUERY)).be.fulfilledWith FILES_META
 
@@ -140,6 +143,7 @@ describe "client", ->
               uuid: "5fb50d75-1c90-4f8a-9d9b-ac4a6ce80744"
             }
           ]
+        FILES_JSON = JSON.stringify FILES_META
         QUERY =
           start: 50
           limit: 50
@@ -152,7 +156,7 @@ describe "client", ->
               parameters:
                 start: 50
                 limit: 50
-            return cb FILES_META, "raw response here"
+            return cb FILES_JSON, "raw response here"
           on: (name, cb) ->
         should(client.get_list(QUERY)).be.fulfilledWith FILES_META
 
@@ -182,15 +186,26 @@ describe "client", ->
     describe "create", ->
       it "should allow a document to be created", ->
         DOC_META =
-          "dave": 4
-          "eve": 5
-          "frank": 6
-        FC_RESPONSE =
-          files: [
+          uuid: 'df25e09b-7361-44d4-a5ae-8d12cf649064'
+          logical_name: '/data/exp/IceCube/2016/filtered/PFFilt/0613/PFFilt_PhysicsTrig_PhysicsFiltering_Run00647875_Subrun00000000_00000423.tar.bz2'
+          locations: [
             {
-              uuid: "df25e09b-7361-44d4-a5ae-8d12cf649064"
+              site: 'WIPAC'
+              path: '/data/exp/IceCube/2016/filtered/PFFilt/0613/PFFilt_PhysicsTrig_PhysicsFiltering_Run00647875_Subrun00000000_00000423.tar.bz2'
             }
           ]
+          file_size: 96448528
+          checksum:
+            sha512: 'd5346e94d00fb2e3beb48f3680d0ff43ad9af4f54b8d3aa64a0e3f93be8dde7c09060cbbaef44b418330e59f8327f2188db467fd44800b013c3724775246114e'
+
+        FC_RESPONSE =
+          _links:
+            parent:
+              href: "/api"
+            self:
+              href: "/api/files"
+          file: "/api/files/df25e09b-7361-44d4-a5ae-8d12cf649064"
+
         client = new mut.WFCClient "http://127.0.0.1"
         client.client.should.be.ok()
         client.client =
@@ -198,12 +213,21 @@ describe "client", ->
             url.should.equal "http://127.0.0.1/api/files"
             args.should.eql
               data:
-                "dave": 4
-                "eve": 5
-                "frank": 6
+                uuid: 'df25e09b-7361-44d4-a5ae-8d12cf649064'
+                logical_name: '/data/exp/IceCube/2016/filtered/PFFilt/0613/PFFilt_PhysicsTrig_PhysicsFiltering_Run00647875_Subrun00000000_00000423.tar.bz2'
+                locations: [
+                  {
+                    site: 'WIPAC'
+                    path: '/data/exp/IceCube/2016/filtered/PFFilt/0613/PFFilt_PhysicsTrig_PhysicsFiltering_Run00647875_Subrun00000000_00000423.tar.bz2'
+                  }
+                ]
+                file_size: 96448528
+                checksum:
+                  sha512: 'd5346e94d00fb2e3beb48f3680d0ff43ad9af4f54b8d3aa64a0e3f93be8dde7c09060cbbaef44b418330e59f8327f2188db467fd44800b013c3724775246114e'
               headers:
                 "Content-Type": 'application/json'
-            return cb FC_RESPONSE, "raw response here"
+            jsonFcResp = JSON.stringify FC_RESPONSE, null, 2
+            return cb jsonFcResp, "raw response here"
           on: (name, cb) ->
         should(client.create(DOC_META)).be.fulfilledWith FC_RESPONSE
 
@@ -323,3 +347,6 @@ describe "client", ->
       it "does not yet support", ->
         client = new mut.WFCClient "http://127.0.0.1"
         client.delete().should.be.rejected()
+
+#-----------------------------------------------------------------------
+# end of clientTest.coffee

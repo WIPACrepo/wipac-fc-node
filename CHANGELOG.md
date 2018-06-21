@@ -18,6 +18,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Security
 - in case of vulnerabilities
 
+## [0.0.4] - 2018-06-20
+### Added
+- Methods to create and query Collections and Snapshots
+- Integration tests to ensure client works with file catalog
+### Changed
+- Many client methods return objects instead of naked JSON
+- Existing client tests for object returns
+
 ## [0.0.3] - 2018-06-15
 ### Added
 - ClientError class for client side errors
@@ -36,6 +44,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Project dependencies in package.json
 - Description of project in README.md
 
-[Unreleased]: https://github.com/WIPACrepo/wipac-fc-node/compare/v0.0.3...HEAD
+[Unreleased]: https://github.com/WIPACrepo/wipac-fc-node/compare/v0.0.4...HEAD
+[0.0.4]: https://github.com/WIPACrepo/wipac-fc-node/compare/v0.0.3...v0.0.4
 [0.0.3]: https://github.com/WIPACrepo/wipac-fc-node/compare/v0.0.2...v0.0.3
 [0.0.2]: https://github.com/WIPACrepo/wipac-fc-node/compare/v0.0.1...v0.0.2

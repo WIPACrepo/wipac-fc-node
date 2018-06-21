@@ -134,11 +134,19 @@ exports.error_factory = error_factory = (code, message) ->
 #         else:
 #             self._r = requests
 class exports.WFCClient
+  #---------------------------------------------------------------------
+  # WIPAC File Catalog Client
+  #---------------------------------------------------------------------
+
   constructor: (@url, port = undefined, use_session = false) ->
     throw new Error "(use_session = true) Not Supported" if use_session
     @url = "#{@url}:#{port}" if port?
     @url = urljoin @url, "api"
     @client = new Client()
+
+  #---------------------------------------------------------------------
+  # Files
+  #---------------------------------------------------------------------
 
   # def get_files(self, run_number=None, dataset=None, event_id=None,
   #               processing_level=None, season=None, keys=None):
@@ -243,7 +251,11 @@ class exports.WFCClient
     restClient = @client
     return new Promise (resolve, reject) ->
       restClient.get filesUrl, args, (data, response) ->
-        return resolve data
+        try
+          obj = JSON.parse data
+        catch err
+          return reject err
+        return resolve obj
       .on "error", (err) ->
         return reject err
 
@@ -263,7 +275,11 @@ class exports.WFCClient
     restClient = @client
     return new Promise (resolve, reject) ->
       restClient.get filesUrl, (data, response) ->
-        return resolve data
+        try
+          obj = JSON.parse data
+        catch err
+          return reject err
+        return resolve obj
       .on "error", (err) ->
         return reject err
 
@@ -310,7 +326,11 @@ class exports.WFCClient
     restClient = @client
     return new Promise (resolve, reject) ->
       restClient.post filesUrl, args, (data, response) ->
-        return resolve data
+        try
+          obj = JSON.parse data
+        catch err
+          return reject err
+        return resolve obj
       .on "error", (err) ->
         return reject err
 
@@ -320,7 +340,6 @@ class exports.WFCClient
   #     """
   #     return self._update_or_replace(uid=uid, metadata=metadata, method=self._r.patch)
   update: (uid, metadata) ->
-    #return Promise.reject new Error "update Not Supported"
     return @_update_or_replace uid, metadata, @client.patch
 
   # def _update_or_replace(self, uid, metadata={}, method=None):
@@ -378,7 +397,6 @@ class exports.WFCClient
   #     """
   #     return self._update_or_replace(uid=uid, metadata=metadata, method=self._r.put)
   replace: (uid, metadata) ->
-    #return Promise.reject new Error "replace Not Supported"
     return @_update_or_replace uid, metadata, @client.put
 
   # def delete(self, uid):
@@ -391,3 +409,108 @@ class exports.WFCClient
   #         raise error_factory(r.status_code, r.text)
   delete: (uid) ->
     return Promise.reject new Error "delete Not Supported"
+
+  #---------------------------------------------------------------------
+  # Collections
+  #---------------------------------------------------------------------
+
+  create_collection: (metadata) ->
+    filesUrl = urljoin @url, "collections"
+
+    args =
+      data: metadata
+      headers:
+        "Content-Type": "application/json"
+
+    restClient = @client
+    return new Promise (resolve, reject) ->
+      restClient.post filesUrl, args, (data, response) ->
+        try
+          obj = JSON.parse data
+        catch err
+          return reject err
+        return resolve obj
+      .on "error", (err) ->
+        return reject err
+
+  get_collection: (uid) ->
+    filesUrl = urljoin @url, "collections", uid
+
+    restClient = @client
+    return new Promise (resolve, reject) ->
+      restClient.get filesUrl, (data, response) ->
+        try
+          obj = JSON.parse data
+        catch err
+          return reject err
+        return resolve obj
+      .on "error", (err) ->
+        return reject err
+
+  get_collections: (options = {}) ->
+    filesUrl = urljoin @url, "collections"
+
+    restClient = @client
+    return new Promise (resolve, reject) ->
+      restClient.get filesUrl, (data, response) ->
+        try
+          obj = JSON.parse data
+        catch err
+          return reject err
+        return resolve obj
+      .on "error", (err) ->
+        return reject err
+
+  #---------------------------------------------------------------------
+  # Snapshots
+  #---------------------------------------------------------------------
+
+  create_snapshot: (collection, metadata) ->
+    filesUrl = urljoin @url, "collections", collection.uuid, "snapshots"
+
+    args =
+      data: metadata
+      headers:
+        "Content-Type": "application/json"
+
+    restClient = @client
+    return new Promise (resolve, reject) ->
+      restClient.post filesUrl, args, (data, response) ->
+        try
+          obj = JSON.parse data
+        catch err
+          return reject err
+        return resolve obj
+      .on "error", (err) ->
+        return reject err
+
+  get_snapshot: (uid) ->
+    filesUrl = urljoin @url, "snapshots", uid
+
+    restClient = @client
+    return new Promise (resolve, reject) ->
+      restClient.get filesUrl, (data, response) ->
+        try
+          obj = JSON.parse data
+        catch err
+          return reject err
+        return resolve obj
+      .on "error", (err) ->
+        return reject err
+
+  get_snapshot_files: (uid) ->
+    filesUrl = urljoin @url, "snapshots", uid, "files"
+
+    restClient = @client
+    return new Promise (resolve, reject) ->
+      restClient.get filesUrl, (data, response) ->
+        try
+          obj = JSON.parse data
+        catch err
+          return reject err
+        return resolve obj
+      .on "error", (err) ->
+        return reject err
+
+#-----------------------------------------------------------------------
+# end of client.coffee
